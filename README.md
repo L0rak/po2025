@@ -14,13 +14,13 @@ Diagramy UML
 ```plantuml
 @startuml
 
-package samochod {
+package Samochod {
     class Samochod {
         - String nazwa
         - String nrRejestracyjny
         - Silnik silnik
         - SkrzyniaBiegow skrzyniaBiegow
-        - Pozycja pozycja
+        - Pozycja Pozycja
         - boolean running
         + void wlacz()
         + void wylacz()
@@ -80,7 +80,7 @@ package samochodgui {
     class SamochodController {
         - ComboBox<Samochod> samochodComboBox
         - ObservableList<Samochod> samochody
-        - Samochod samochod
+        - Samochod Samochod
         - TextField wagaTextField
         - TextField nrRejestracyjnyTextField
         - TextField predkoscTextField
@@ -118,25 +118,25 @@ package samochodgui {
     }
 }
 
-samochod.Samochod --> samochod.Silnik
-samochod.Samochod --> samochod.SkrzyniaBiegow
-samochod.Samochod --> samochod.Pozycja
-samochod.Samochod --|> Thread
-samochod.Samochod *-- samochod.Obserwator
-samochod.Silnik --|> samochod.Komponent
-samochod.SkrzyniaBiegow --|> samochod.Komponent
-samochod.SkrzyniaBiegow --> samochod.Sprzeglo
-samochod.Sprzeglo --|> samochod.Komponent
+Samochod.Samochod --> Samochod.Silnik
+Samochod.Samochod --> Samochod.SkrzyniaBiegow
+Samochod.Samochod --> Samochod.Pozycja
+Samochod.Samochod --|> Thread
+Samochod.Samochod *-- Samochod.Obserwator
+Samochod.Silnik --|> Samochod.Komponent
+Samochod.SkrzyniaBiegow --|> Samochod.Komponent
+Samochod.SkrzyniaBiegow --> Samochod.Sprzeglo
+Samochod.Sprzeglo --|> Samochod.Komponent
 
 
-samochodgui.SamochodController -> samochod.Samochod
-samochodgui.SamochodController ..|> samochod.Obserwator
+samochodgui.SamochodController -> Samochod.Samochod
+samochodgui.SamochodController ..|> Samochod.Obserwator
 
 samochodgui.SamochodController <-- samochodgui.NowySamochodController
 samochodgui.SamochodApplication --> samochodgui.SamochodController
 
-samochod.SamochodException --|> Exception
-samochod.SkrzyniaBiegow -- samochod.SamochodException
+Samochod.SamochodException --|> Exception
+Samochod.SkrzyniaBiegow -- Samochod.SamochodException
 
 hide methods
 hide members
@@ -211,6 +211,6 @@ actor User
 participant SamochodController
 
 User -> SamochodController: onUsunSamochod(event)
-SamochodController -> SamochodController: samochody.remove(samochod)
+SamochodController -> SamochodController: samochody.remove(Samochod)
 SamochodController -> SamochodController: samochodComboBox.selectFirst()
 @enduml
