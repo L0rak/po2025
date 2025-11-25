@@ -1,3 +1,5 @@
+package org.example.symulator;
+
 public abstract class Komponent {
     private String nazwa;
     private float waga;

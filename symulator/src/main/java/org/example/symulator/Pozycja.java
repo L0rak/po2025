@@ -1,3 +1,5 @@
+package org.example.symulator;
+
 public class Pozycja {
     private double x;
     private double y;
@@ -9,6 +11,13 @@ public class Pozycja {
 
     public String getPozycje() {
         return x + ", " + y;
+    }
+
+    public double getX() {
+        return x;
+    }
+    public double getY() {
+        return y;
     }
 
 }

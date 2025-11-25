@@ -1,3 +1,5 @@
+package org.example.symulator;
+
 import java.time.LocalDate;
 
 public class Zawody {
@@ -6,5 +8,5 @@ public class Zawody {
 
     private Samochod[] uczestnicy;
 
-    static public void rozegrajZawody() {}
+    public void rozegrajZawody() {}
 }

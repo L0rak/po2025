@@ -3,7 +3,7 @@ Repozytorium dla przedmiotu Programowanie Obiektowe.
 
 
 
-Projekt laboratoryjny Samochod (symulacja) - GUI
+Projekt laboratoryjny org.example.symulator.Samochod (symulacja) - GUI
 ===============================================
 
 Diagramy UML
@@ -14,26 +14,26 @@ Diagramy UML
 ```plantuml
 @startuml
 
-package Samochod {
-    class Samochod {
+package org.example.symulator.Samochod {
+    class org.example.symulator.Samochod {
         - String nazwa
         - String nrRejestracyjny
-        - Silnik silnik
-        - SkrzyniaBiegow skrzyniaBiegow
-        - Pozycja Pozycja
+        - org.example.symulator.Silnik silnik
+        - org.example.symulator.SkrzyniaBiegow skrzyniaBiegow
+        - org.example.symulator.Pozycja org.example.symulator.Pozycja
         - boolean running
         + void wlacz()
         + void wylacz()
         + double getWaga()
         + String getNrRejestracyjny()
         + double getPredkosc()
-        + SkrzyniaBiegow getSkrzyniaBiegow()
-        + Pozycja getPozycja()
+        + org.example.symulator.SkrzyniaBiegow getSkrzyniaBiegow()
+        + org.example.symulator.Pozycja getPozycja()
         + String getNazwa()
         + void notifyObserwator()
     }
 
-    class Silnik {
+    class org.example.symulator.Silnik {
         - int moc
         - int obroty
         + void wlacz()
@@ -41,23 +41,23 @@ package Samochod {
         + int getObroty()
     }
 
-    class SkrzyniaBiegow {
+    class org.example.symulator.SkrzyniaBiegow {
         - int bieg
         + void zwiekszBieg()
         + void zmniejszBieg()
         + int getBieg()
     }
 
-    class Pozycja {
+    class org.example.symulator.Pozycja {
         - double x
         - double y
     }
     
-    class Komponent {
+    class org.example.symulator.Komponent {
         
     }
     
-    class Sprzeglo {
+    class org.example.symulator.Sprzeglo {
         
     }
 
@@ -78,9 +78,9 @@ package samochodgui {
     }
 
     class SamochodController {
-        - ComboBox<Samochod> samochodComboBox
-        - ObservableList<Samochod> samochody
-        - Samochod Samochod
+        - ComboBox<org.example.symulator.Samochod> samochodComboBox
+        - ObservableList<org.example.symulator.Samochod> samochody
+        - org.example.symulator.Samochod org.example.symulator.Samochod
         - TextField wagaTextField
         - TextField nrRejestracyjnyTextField
         - TextField predkoscTextField
@@ -93,7 +93,7 @@ package samochodgui {
         + void initialize()
         + void onDodajSamochod(ActionEvent event)
         + void onUsunSamochod(ActionEvent event)
-        + void dodajSamochod(Samochod nowySamochod)
+        + void dodajSamochod(org.example.symulator.Samochod nowySamochod)
         + void refresh()
         + void onWlacz(ActionEvent actionEvent)
         + void onWylacz(ActionEvent actionEvent)
@@ -118,25 +118,25 @@ package samochodgui {
     }
 }
 
-Samochod.Samochod --> Samochod.Silnik
-Samochod.Samochod --> Samochod.SkrzyniaBiegow
-Samochod.Samochod --> Samochod.Pozycja
-Samochod.Samochod --|> Thread
-Samochod.Samochod *-- Samochod.Obserwator
-Samochod.Silnik --|> Samochod.Komponent
-Samochod.SkrzyniaBiegow --|> Samochod.Komponent
-Samochod.SkrzyniaBiegow --> Samochod.Sprzeglo
-Samochod.Sprzeglo --|> Samochod.Komponent
+org.example.symulator.Samochod.org.example.symulator.Samochod --> org.example.symulator.Samochod.org.example.symulator.Silnik
+org.example.symulator.Samochod.org.example.symulator.Samochod --> org.example.symulator.Samochod.org.example.symulator.SkrzyniaBiegow
+org.example.symulator.Samochod.org.example.symulator.Samochod --> org.example.symulator.Samochod.org.example.symulator.Pozycja
+org.example.symulator.Samochod.org.example.symulator.Samochod --|> Thread
+org.example.symulator.Samochod.org.example.symulator.Samochod *-- org.example.symulator.Samochod.Obserwator
+org.example.symulator.Samochod.org.example.symulator.Silnik --|> org.example.symulator.Samochod.org.example.symulator.Komponent
+org.example.symulator.Samochod.org.example.symulator.SkrzyniaBiegow --|> org.example.symulator.Samochod.org.example.symulator.Komponent
+org.example.symulator.Samochod.org.example.symulator.SkrzyniaBiegow --> org.example.symulator.Samochod.org.example.symulator.Sprzeglo
+org.example.symulator.Samochod.org.example.symulator.Sprzeglo --|> org.example.symulator.Samochod.org.example.symulator.Komponent
 
 
-samochodgui.SamochodController -> Samochod.Samochod
-samochodgui.SamochodController ..|> Samochod.Obserwator
+samochodgui.SamochodController -> org.example.symulator.Samochod.org.example.symulator.Samochod
+samochodgui.SamochodController ..|> org.example.symulator.Samochod.Obserwator
 
 samochodgui.SamochodController <-- samochodgui.NowySamochodController
 samochodgui.SamochodApplication --> samochodgui.SamochodController
 
-Samochod.SamochodException --|> Exception
-Samochod.SkrzyniaBiegow -- Samochod.SamochodException
+org.example.symulator.Samochod.SamochodException --|> Exception
+org.example.symulator.Samochod.org.example.symulator.SkrzyniaBiegow -- org.example.symulator.Samochod.SamochodException
 
 hide methods
 hide members
@@ -150,18 +150,18 @@ hide members
 actor User
 participant SamochodApplication
 participant SamochodController
-participant Samochod
-participant Silnik
-participant SkrzyniaBiegow
+participant org.example.symulator.Samochod
+participant org.example.symulator.Silnik
+participant org.example.symulator.SkrzyniaBiegow
 
 User -> SamochodApplication: start(primaryStage)
 SamochodApplication -> SamochodController: initialize()
-SamochodController -> Samochod: new Samochod(...)
-Samochod -> Silnik: new Silnik(...)
-Samochod -> SkrzyniaBiegow: new SkrzyniaBiegow(...)
-SamochodController -> Samochod: subscribeObserwator(this)
-SamochodController -> Samochod: setItems(samochody)
-SamochodController -> Samochod: selectFirst()
+SamochodController -> org.example.symulator.Samochod: new org.example.symulator.Samochod(...)
+org.example.symulator.Samochod -> org.example.symulator.Silnik: new org.example.symulator.Silnik(...)
+org.example.symulator.Samochod -> org.example.symulator.SkrzyniaBiegow: new org.example.symulator.SkrzyniaBiegow(...)
+SamochodController -> org.example.symulator.Samochod: subscribeObserwator(this)
+SamochodController -> org.example.symulator.Samochod: setItems(samochody)
+SamochodController -> org.example.symulator.Samochod: selectFirst()
 @enduml
 ```
 
@@ -169,13 +169,13 @@ SamochodController -> Samochod: selectFirst()
 
 ```plantuml
 @startuml
-participant Samochod
+participant org.example.symulator.Samochod
 participant Obserwator
 participant SamochodController
 participant Platform
 
-Samochod -> Samochod: notifyObserwator()
-Samochod -> Platform: runLater()
+org.example.symulator.Samochod -> org.example.symulator.Samochod: notifyObserwator()
+org.example.symulator.Samochod -> Platform: runLater()
 Platform -> Obserwator: aktualizuj()
 Obserwator -> SamochodController: aktualizuj()
 SamochodController -> SamochodController: refresh()
@@ -189,14 +189,14 @@ SamochodController -> SamochodController: refresh()
 actor User
 participant SamochodController
 participant NowySamochodController
-participant Samochod
+participant org.example.symulator.Samochod
 
 User -> SamochodController: onDodajSamochod(event)
 SamochodController -> NowySamochodController: setSamochodController(this)
 SamochodController -> NowySamochodController: show()
 
 User -> NowySamochodController: onDodaj(event)
-NowySamochodController -> Samochod: new Samochod(...)
+NowySamochodController -> org.example.symulator.Samochod: new org.example.symulator.Samochod(...)
 NowySamochodController -> SamochodController: dodajSamochod(nowySamochod)
 SamochodController -> SamochodController: samochody.add(nowySamochod)
 SamochodController -> SamochodController: samochodComboBox.select(nowySamochod)
@@ -211,6 +211,6 @@ actor User
 participant SamochodController
 
 User -> SamochodController: onUsunSamochod(event)
-SamochodController -> SamochodController: samochody.remove(Samochod)
+SamochodController -> SamochodController: samochody.remove(org.example.symulator.Samochod)
 SamochodController -> SamochodController: samochodComboBox.selectFirst()
 @enduml
