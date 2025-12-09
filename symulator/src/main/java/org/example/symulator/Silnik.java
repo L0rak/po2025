@@ -14,7 +14,6 @@ public class Silnik extends Komponent{
         super(nazwa, waga, cena);
 
         this.maxObroty = maxObroty;
-        this.obroty = 1000;
     }
 
     public int getObroty() {

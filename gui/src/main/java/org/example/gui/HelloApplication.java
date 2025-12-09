@@ -16,7 +16,6 @@ public class HelloApplication extends Application {
         stage.setTitle("Symulator Samochodu");
         stage.setScene(scene);
 
-
         stage.setMaximized(true);
 
         stage.show();

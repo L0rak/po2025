@@ -1,96 +1,53 @@
 package org.example.gui;
 
 import javafx.animation.AnimationTimer;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
-import org.example.symulator.*; // Import Twoich klas
+import org.example.symulator.*;
 
 public class HelloController {
 
+    @FXML private TabPane glownyTabPane; // Jeśli nadasz fx:id="glownyTabPane" dla całego <TabPane> w FXML
+    @FXML private Tab kokpitTab;
+    @FXML private Tab garazTab;
+
+    @FXML private TextField modelField;
+    @FXML private TextField nrRejestField;
+    @FXML private TextField silnikNazwaField;
+    @FXML private TextField maxObrotyField;
+    @FXML private TextField iloscBiegowField;
+    @FXML private Label bladLabel;
+
     @FXML private Pane mapaPane;
     @FXML private Circle znacznikCelu;
-    @FXML private Circle znacznikSamochodu;
+    @FXML private ImageView znacznikSamochodu;
     @FXML private Label wspolrzedneCeluLabel;
+
     @FXML private Button uruchomButton;
     @FXML private Label obrotyLabel;
     @FXML private ProgressBar obrotyBar;
+
     @FXML private Label predkoscLabel;
     @FXML private Label biegLabel;
     @FXML private ToggleButton sprzegloButton;
 
     private Samochod mojSamochod;
-    private AnimationTimer pętlaSymulacji; // To będzie "silnik gry"
+    private AnimationTimer pętlaSymulacji;
 
     @FXML
     public void initialize() {
-        stworzSamochod();
-        uruchomPetleSymulacji(); // Startujemy odświeżanie
+        System.out.println("Garaż otwarty. Czekam na konfigurację auta.");
     }
-
-    private void stworzSamochod() {
-        Silnik silnikV8 = new Silnik("V8", 200, 50000, 8000, 1000);
-        Sprzeglo sprzeglo = new Sprzeglo("Sport", 10, 2000);
-        SkrzyniaBiegow skrzynia = new SkrzyniaBiegow("Man6", 50, 5000, 6, sprzeglo);
-
-        mojSamochod = new Samochod("WA 12345", "Audi", 260, silnikV8, skrzynia);
-    }
-
-    private void uruchomPetleSymulacji() {
-        pętlaSymulacji = new AnimationTimer() {
-            private long lastTime = 0;
-
-            @Override
-            public void handle(long now) {
-                if (lastTime == 0) {
-                    lastTime = now;
-                    return;
-                }
-
-                // Obliczamy ile czasu minęło od ostatniej klatki (w sekundach)
-                double deltaTime = (now - lastTime) / 1_000_000_000.0;
-                lastTime = now;
-
-                // 1. Logika: Samochód oblicza swoją nową fizykę
-                mojSamochod.aktualizujStan(deltaTime);
-
-                // 2. Grafika: Przerysowujemy auto na mapie
-                aktualizujGrafike();
-            }
-        };
-        pętlaSymulacji.start();
-    }
-
-    private void aktualizujGrafike() {
-        // Przesuń kropkę auta na mapie
-        Pozycja pos = mojSamochod.getAktPozycja();
-        // Uwaga: Zakładam, że masz getX() i getY() w Pozycji!
-        znacznikSamochodu.setCenterX(pos.getX()); // lub pos.x jeśli publiczne
-        znacznikSamochodu.setCenterY(pos.getY());
-
-        // Zaktualizuj liczniki
-        if (mojSamochod.czyWlaczony()) {
-            int rpm = mojSamochod.getSilnik().getObroty();
-            int maxRpm = mojSamochod.getSilnik().getMaxObroty();
-            obrotyLabel.setText(rpm + " RPM");
-            obrotyBar.setProgress((double) rpm / maxRpm);
-        } else {
-            obrotyLabel.setText("0 RPM");
-            obrotyBar.setProgress(0.0);
-        }
-
-        biegLabel.setText(String.valueOf(mojSamochod.getSkrzynia().getAktBieg()));
-
-        // Sformatuj prędkość do 0 miejsc po przecinku
-        predkoscLabel.setText("%.0f km/h, " + mojSamochod.getAktPredkosc());
-    }
-
-    // --- OBSŁUGA PRZYCISKÓW (Logika sterowania) ---
 
     @FXML
     void onUruchomClick() {
+        if (mojSamochod == null) return;
+
         if (mojSamochod.czyWlaczony()) {
             mojSamochod.wylacz();
             uruchomButton.setText("URUCHOM SILNIK");
@@ -100,55 +57,145 @@ public class HelloController {
             uruchomButton.setText("ZATRZYMAJ SILNIK");
             uruchomButton.setStyle("-fx-background-color: #f44336;");
         }
+        aktualizujGrafike();
     }
 
     @FXML
     void onZwiekszObroty() {
-        if (mojSamochod.czyWlaczony()) mojSamochod.getSilnik().zwiekszObroty();
+        if (mojSamochod != null && mojSamochod.czyWlaczony()) {
+            mojSamochod.getSilnik().zwiekszObroty();
+        }
     }
 
     @FXML
     void onZmniejszObroty() {
-        if (mojSamochod.czyWlaczony()) mojSamochod.getSilnik().zmniejszObroty();
+        if (mojSamochod != null && mojSamochod.czyWlaczony()) {
+            mojSamochod.getSilnik().zmniejszObroty();
+        }
     }
 
     @FXML
     void onZwiekszenieBiegu() {
-        // Wywołujemy metodę skrzyni (ona sama sprawdzi czy sprzęgło jest wciśnięte)
-        mojSamochod.getSkrzynia().zwiekszBieg();
+        if (mojSamochod != null) {
+            mojSamochod.getSkrzynia().zwiekszBieg();
+            aktualizujGrafike();
+        }
     }
 
     @FXML
     void onRedukcjaBiegu() {
-        mojSamochod.getSkrzynia().zmniejszBieg();
+        if (mojSamochod != null) {
+            mojSamochod.getSkrzynia().zmniejszBieg();
+            aktualizujGrafike();
+        }
     }
 
     @FXML
     void onSprzegloClick() {
-        if (sprzegloButton.isSelected()) {
-            mojSamochod.getSkrzynia().getSprzeglo().wcisnij();
-            sprzegloButton.setText("SPRZĘGŁO (WCIŚNIĘTE)");
-        } else {
-            mojSamochod.getSkrzynia().getSprzeglo().zwolnij();
-            sprzegloButton.setText("SPRZĘGŁO");
+        if (mojSamochod != null) {
+            if (sprzegloButton.isSelected()) {
+                mojSamochod.getSkrzynia().getSprzeglo().wcisnij();
+                sprzegloButton.setText("SPRZĘGŁO (WCIŚNIĘTE)");
+            } else {
+                mojSamochod.getSkrzynia().getSprzeglo().zwolnij();
+                sprzegloButton.setText("SPRZĘGŁO");
+            }
         }
     }
 
     @FXML
     void ustawCelNaMapie(MouseEvent event) {
+        if (mojSamochod == null) return;
+
         double x = event.getX();
         double y = event.getY();
 
-        // Grafika
         znacznikCelu.setCenterX(x);
         znacznikCelu.setCenterY(y);
         znacznikCelu.setVisible(true);
-        wspolrzedneCeluLabel.setText(String.format("[%.1f, %.1f]", x, y));
+        wspolrzedneCeluLabel.setText(String.format("Cel: [%.0f, %.0f]", x, y));
 
-        // Logika
-        Pozycja nowyCel = new Pozycja(); // Tu przydałby się konstruktor Pozycja(x,y)
-        nowyCel.aktualizujPozycje(x, y); // Hack: jeśli nie masz konstruktora, użyj metody
+        Pozycja nowyCel = new Pozycja();
+        nowyCel.aktualizujPozycje(x, y);
 
         mojSamochod.jedzDo(nowyCel);
+    }
+
+    private void uruchomPetleSymulacji() {
+        pętlaSymulacji = new AnimationTimer() {
+            private long lastTime = 0;
+            @Override
+            public void handle(long now) {
+                if (lastTime == 0) { lastTime = now; return; }
+                double deltaTime = (now - lastTime) / 1_000_000_000.0;
+                lastTime = now;
+
+                if (mojSamochod != null) {
+                    mojSamochod.aktualizujStan(deltaTime);
+                    aktualizujGrafike();
+                }
+            }
+        };
+        pętlaSymulacji.start();
+    }
+
+    private void aktualizujGrafike() {
+        if (mojSamochod == null) return;
+
+        Pozycja pos = mojSamochod.getAktPozycja();
+        double width = znacznikSamochodu.getFitWidth();
+        double height = znacznikSamochodu.getFitHeight();
+
+        znacznikSamochodu.setLayoutX(pos.getX() - (width / 2));
+        znacznikSamochodu.setLayoutY(pos.getY() - (height / 2));
+
+        if (mojSamochod.czyWlaczony()) {
+            obrotyLabel.setText(mojSamochod.getSilnik().getObroty() + " RPM");
+            obrotyBar.setProgress((double)mojSamochod.getSilnik().getObroty() / mojSamochod.getSilnik().getMaxObroty());
+        }
+
+        biegLabel.setText(String.valueOf(mojSamochod.getSkrzynia().getAktBieg()));
+        predkoscLabel.setText(String.format("%.0f km/h", mojSamochod.getAktPredkosc()));
+    }
+
+    @FXML
+    void onZbudujAutoClick() {
+        try {
+            String model = modelField.getText();
+            String nrRejest = nrRejestField.getText();
+            String silnikNazwa = silnikNazwaField.getText();
+            int maxObroty = Integer.parseInt(maxObrotyField.getText());
+            int iloscBiegow = Integer.parseInt(iloscBiegowField.getText());
+
+            if (model.isEmpty() || nrRejest.isEmpty()) {
+                bladLabel.setText("Model i Rejestracja są wymagane!");
+                return;
+            }
+
+            Silnik silnik = new Silnik(silnikNazwa, 200, 5000, maxObroty, 0);
+            Sprzeglo sprzeglo = new Sprzeglo("Sport", 10, 2000);
+            SkrzyniaBiegow skrzynia = new SkrzyniaBiegow("Manual", 50, 5000, iloscBiegow, sprzeglo);
+
+            mojSamochod = new Samochod(nrRejest, model, 150, silnik, skrzynia);
+
+            bladLabel.setText("");
+            kokpitTab.setDisable(false);
+
+            if (glownyTabPane != null) {
+                glownyTabPane.getSelectionModel().select(kokpitTab);
+            }
+
+            if (pętlaSymulacji == null) {
+                uruchomPetleSymulacji();
+            }
+
+            System.out.println("Zbudowano: " + model);
+
+        } catch (NumberFormatException e) {
+            bladLabel.setText("Błąd! Wpisz poprawne liczby.");
+        } catch (Exception e) {
+            bladLabel.setText("Błąd: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

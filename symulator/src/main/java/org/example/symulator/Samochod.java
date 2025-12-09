@@ -67,43 +67,36 @@ public class Samochod {
         System.out.println("Cel ustawiony: " + cel.getPozycje());
     }
 
-    // Ta metoda będzie wywoływana 60 razy na sekundę przez GUI
     public void aktualizujStan(double deltaTime) {
         if (!stanWlaczenia) {
             aktualnaPredkosc = 0;
             return;
         }
 
-        // 1. Oblicz prędkość
-        // Wzór: Obroty * Bieg * Stała (uproszczenie)
-        // Jeśli sprzęgło wciśnięte -> auto zwalnia (toczy się)
         if (skrzynia.getSprzeglo().czyWcisniete()) {
-            aktualnaPredkosc *= 0.99; // Tarcie (zwalnianie na luzie)
+            aktualnaPredkosc *= 0.99;
         } else {
-            // Prędkość = RPM * przełożenie biegu / stała skalująca
             double mocNapedu = silnik.getObroty() * skrzynia.getAktualnePrzelozenie() * 0.01;
             aktualnaPredkosc = mocNapedu;
         }
 
-        // 2. Poruszanie się w stronę celu
         if (celPodrozy != null && aktualnaPredkosc > 0.1) {
-            double obecneX = aktualnaPozycja.getX(); // Zakładam getter getX w Pozycja
-            double obecneY = aktualnaPozycja.getY(); // Zakładam getter getY w Pozycja
+            double obecneX = aktualnaPozycja.getX();
+            double obecneY = aktualnaPozycja.getY();
 
             double celX = celPodrozy.getX();
             double celY = celPodrozy.getY();
 
-            // Matematyka wektorowa (dystans i kierunek)
             double dx = celX - obecneX;
             double dy = celY - obecneY;
             double dystans = Math.sqrt(dx * dx + dy * dy);
 
-            if (dystans > 5.0) { // Jeśli jesteśmy dalej niż 5 pikseli od celu
-                // Normalizacja wektora (kierunek)
+            if (dystans > 5.0) {
+
                 double kierunekX = dx / dystans;
                 double kierunekY = dy / dystans;
 
-                // Przesunięcie = Prędkość * czas * mnożnik mapy
+
                 double ruch = aktualnaPredkosc * deltaTime * 50.0;
 
                 aktualnaPozycja.aktualizujPozycje(kierunekX * ruch, kierunekY * ruch);
