@@ -1,47 +1,112 @@
 package org.example.gui;
 
-import javafx.animation.AnimationTimer;
-import javafx.event.ActionEvent;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
-import org.example.symulator.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.example.symulator.Listener;
+import org.example.symulator.Pozycja;
+import org.example.symulator.Samochod;
 
-public class HelloController {
+import java.io.IOException;
 
-    @FXML private TabPane glownyTabPane; // Jeśli nadasz fx:id="glownyTabPane" dla całego <TabPane> w FXML
-    @FXML private Tab kokpitTab;
-    @FXML private Tab garazTab;
+public class HelloController implements Listener {
 
-    @FXML private TextField modelField;
-    @FXML private TextField nrRejestField;
-    @FXML private TextField silnikNazwaField;
-    @FXML private TextField maxObrotyField;
-    @FXML private TextField iloscBiegowField;
-    @FXML private Label bladLabel;
+    @FXML private ComboBox<Samochod> wyborSamochoduBox;
+    @FXML private Label statusLabel;
+
+    private ObservableList<Samochod> listaSamochodow = FXCollections.observableArrayList();
 
     @FXML private Pane mapaPane;
     @FXML private Circle znacznikCelu;
     @FXML private ImageView znacznikSamochodu;
     @FXML private Label wspolrzedneCeluLabel;
-
     @FXML private Button uruchomButton;
     @FXML private Label obrotyLabel;
     @FXML private ProgressBar obrotyBar;
-
     @FXML private Label predkoscLabel;
     @FXML private Label biegLabel;
     @FXML private ToggleButton sprzegloButton;
 
     private Samochod mojSamochod;
-    private AnimationTimer pętlaSymulacji;
 
     @FXML
     public void initialize() {
-        System.out.println("Garaż otwarty. Czekam na konfigurację auta.");
+        wyborSamochoduBox.setItems(listaSamochodow);
+
+        wyborSamochoduBox.getSelectionModel().selectedItemProperty().addListener((obs, stareAuto, noweAuto) -> {
+            if (stareAuto != null) {
+                stareAuto.removeListener(this); // Przestajemy słuchać starego auta
+            }
+            if (noweAuto != null) {
+                przelaczSamochod(noweAuto);
+            }
+        });
+
+        System.out.println("System gotowy. Wątki aktywne.");
+    }
+
+    private void przelaczSamochod(Samochod auto) {
+        this.mojSamochod = auto;
+        this.mojSamochod.addListener(this);
+
+        if (mojSamochod.czyWlaczony()) {
+            uruchomButton.setText("ZATRZYMAJ SILNIK");
+            uruchomButton.setStyle("-fx-background-color: #f44336;");
+        } else {
+            uruchomButton.setText("URUCHOM SILNIK");
+            uruchomButton.setStyle("-fx-background-color: #4caf50;");
+        }
+
+        if (sprzegloButton.isSelected() != mojSamochod.getSkrzynia().getSprzeglo().czyWcisniete()) {
+            sprzegloButton.setSelected(false);
+            sprzegloButton.setText("SPRZĘGŁO");
+        }
+
+        aktualizujGrafike(); // Pierwsze odświeżenie
+        System.out.println("Przełączono na: " + auto.getModel());
+    }
+
+    private void aktualizujGrafike() {
+        if (mojSamochod == null) return;
+
+        Pozycja pos = mojSamochod.getAktPozycja();
+        double w = znacznikSamochodu.getFitWidth();
+        double h = znacznikSamochodu.getFitHeight();
+
+        // Ustawienie pozycji ikony [cite: 99-100]
+        znacznikSamochodu.setLayoutX(pos.getX() - w/2);
+        znacznikSamochodu.setLayoutY(pos.getY() - h/2);
+
+        if (mojSamochod.czyWlaczony()) {
+            int rpm = mojSamochod.getSilnik().getObroty();
+            int max = mojSamochod.getSilnik().getMaxObroty();
+            obrotyLabel.setText(rpm + " RPM");
+            obrotyBar.setProgress((double)rpm / max);
+        } else {
+            obrotyLabel.setText("0 RPM");
+            obrotyBar.setProgress(0.0);
+        }
+        biegLabel.setText(String.valueOf(mojSamochod.getSkrzynia().getAktBieg()));
+        predkoscLabel.setText(String.format("%.0f km/h", mojSamochod.getAktPredkosc()));
+    }
+
+    public void pokazBlad(String wiadomosc) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Błąd");
+        alert.setHeaderText(null);
+        alert.setContentText(wiadomosc);
+        alert.showAndWait();
     }
 
     @FXML
@@ -57,13 +122,13 @@ public class HelloController {
             uruchomButton.setText("ZATRZYMAJ SILNIK");
             uruchomButton.setStyle("-fx-background-color: #f44336;");
         }
-        aktualizujGrafike();
     }
 
     @FXML
     void onZwiekszObroty() {
         if (mojSamochod != null && mojSamochod.czyWlaczony()) {
             mojSamochod.getSilnik().zwiekszObroty();
+            update();
         }
     }
 
@@ -71,6 +136,7 @@ public class HelloController {
     void onZmniejszObroty() {
         if (mojSamochod != null && mojSamochod.czyWlaczony()) {
             mojSamochod.getSilnik().zmniejszObroty();
+            update();
         }
     }
 
@@ -78,7 +144,7 @@ public class HelloController {
     void onZwiekszenieBiegu() {
         if (mojSamochod != null) {
             mojSamochod.getSkrzynia().zwiekszBieg();
-            aktualizujGrafike();
+            update();
         }
     }
 
@@ -86,7 +152,7 @@ public class HelloController {
     void onRedukcjaBiegu() {
         if (mojSamochod != null) {
             mojSamochod.getSkrzynia().zmniejszBieg();
-            aktualizujGrafike();
+            update();
         }
     }
 
@@ -100,6 +166,34 @@ public class HelloController {
                 mojSamochod.getSkrzynia().getSprzeglo().zwolnij();
                 sprzegloButton.setText("SPRZĘGŁO");
             }
+            update();
+        }
+    }
+
+    @FXML
+    void onDodajNowyClick() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("new-car-view.fxml"));
+            Parent root = loader.load();
+            NewCarController nowyCtrl = loader.getController();
+
+            Stage stage = new Stage();
+            stage.setTitle("Dodaj Nowy Samochód");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+            Samochod noweAuto = nowyCtrl.getUtworzonySamochod();
+            if (noweAuto != null) {
+                // Wątek startuje w konstruktorze Samochodu, więc tu już działa [cite: 65]
+                listaSamochodow.add(noweAuto);
+                wyborSamochoduBox.getSelectionModel().select(noweAuto);
+                statusLabel.setText("Dodano: " + noweAuto.getModel());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            pokazBlad("Błąd otwierania okna: " + e.getMessage());
         }
     }
 
@@ -121,81 +215,9 @@ public class HelloController {
         mojSamochod.jedzDo(nowyCel);
     }
 
-    private void uruchomPetleSymulacji() {
-        pętlaSymulacji = new AnimationTimer() {
-            private long lastTime = 0;
-            @Override
-            public void handle(long now) {
-                if (lastTime == 0) { lastTime = now; return; }
-                double deltaTime = (now - lastTime) / 1_000_000_000.0;
-                lastTime = now;
 
-                if (mojSamochod != null) {
-                    mojSamochod.aktualizujStan(deltaTime);
-                    aktualizujGrafike();
-                }
-            }
-        };
-        pętlaSymulacji.start();
-    }
-
-    private void aktualizujGrafike() {
-        if (mojSamochod == null) return;
-
-        Pozycja pos = mojSamochod.getAktPozycja();
-        double width = znacznikSamochodu.getFitWidth();
-        double height = znacznikSamochodu.getFitHeight();
-
-        znacznikSamochodu.setLayoutX(pos.getX() - (width / 2));
-        znacznikSamochodu.setLayoutY(pos.getY() - (height / 2));
-
-        if (mojSamochod.czyWlaczony()) {
-            obrotyLabel.setText(mojSamochod.getSilnik().getObroty() + " RPM");
-            obrotyBar.setProgress((double)mojSamochod.getSilnik().getObroty() / mojSamochod.getSilnik().getMaxObroty());
-        }
-
-        biegLabel.setText(String.valueOf(mojSamochod.getSkrzynia().getAktBieg()));
-        predkoscLabel.setText(String.format("%.0f km/h", mojSamochod.getAktPredkosc()));
-    }
-
-    @FXML
-    void onZbudujAutoClick() {
-        try {
-            String model = modelField.getText();
-            String nrRejest = nrRejestField.getText();
-            String silnikNazwa = silnikNazwaField.getText();
-            int maxObroty = Integer.parseInt(maxObrotyField.getText());
-            int iloscBiegow = Integer.parseInt(iloscBiegowField.getText());
-
-            if (model.isEmpty() || nrRejest.isEmpty()) {
-                bladLabel.setText("Model i Rejestracja są wymagane!");
-                return;
-            }
-
-            Silnik silnik = new Silnik(silnikNazwa, 200, 5000, maxObroty, 0);
-            Sprzeglo sprzeglo = new Sprzeglo("Sport", 10, 2000);
-            SkrzyniaBiegow skrzynia = new SkrzyniaBiegow("Manual", 50, 5000, iloscBiegow, sprzeglo);
-
-            mojSamochod = new Samochod(nrRejest, model, 150, silnik, skrzynia);
-
-            bladLabel.setText("");
-            kokpitTab.setDisable(false);
-
-            if (glownyTabPane != null) {
-                glownyTabPane.getSelectionModel().select(kokpitTab);
-            }
-
-            if (pętlaSymulacji == null) {
-                uruchomPetleSymulacji();
-            }
-
-            System.out.println("Zbudowano: " + model);
-
-        } catch (NumberFormatException e) {
-            bladLabel.setText("Błąd! Wpisz poprawne liczby.");
-        } catch (Exception e) {
-            bladLabel.setText("Błąd: " + e.getMessage());
-            e.printStackTrace();
-        }
+    @Override
+    public void update() {
+        Platform.runLater(this::aktualizujGrafike);
     }
 }

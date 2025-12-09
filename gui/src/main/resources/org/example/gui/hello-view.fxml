@@ -2,14 +2,16 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -20,89 +22,40 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <BorderPane style="-fx-background-color: #2b2b2b;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.gui.HelloController">
+
   <top>
-    <Label text="Symulator Samochodu Ultimate" textFill="WHITE" BorderPane.alignment="CENTER">
-      <font>
-        <Font name="System Bold" size="24.0" />
-      </font>
+    <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #1e1e1e;" BorderPane.alignment="CENTER">
       <padding>
-        <Insets bottom="10.0" top="10.0" />
+        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
       </padding>
-    </Label>
+      <children>
+        <Label text="Symulator" textFill="WHITE">
+          <font><Font name="System Bold" size="20.0" /></font>
+        </Label>
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="Aktywny pojazd:" textFill="#a1a1a1" />
+
+        <ComboBox fx:id="wyborSamochoduBox" prefWidth="250.0" promptText="-- Pusty Garaż --" style="-fx-font-size: 14;" />
+
+        <Button onAction="#onDodajNowyClick" style="-fx-background-color: #03a9f4; -fx-cursor: hand;" text="+ Dodaj Nowe Auto" textFill="WHITE">
+          <font><Font name="System Bold" size="12.0" /></font>
+        </Button>
+
+        <Pane HBox.hgrow="ALWAYS" />
+
+        <Label fx:id="statusLabel" text="System gotowy" textFill="#888888" />
+      </children>
+    </HBox>
   </top>
+
   <center>
-    <TabPane fx:id="glownyTabPane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+    <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
       <tabs>
 
-        <Tab text="Garaż" closable="false" fx:id="garazTab">
-          <content>
-            <VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #2b2b2b;">
-              <children>
-                <Label text="Kreator Nowego Pojazdu" textFill="WHITE">
-                  <font>
-                    <Font name="System Bold" size="36.0" />
-                  </font>
-                </Label>
-
-                <GridPane alignment="CENTER" hgap="20.0" vgap="15.0" maxWidth="600.0">
-                  <columnConstraints>
-                    <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" maxWidth="400.0" />
-                  </columnConstraints>
-                  <rowConstraints>
-                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                  </rowConstraints>
-                  <children>
-                    <Label text="Model Samochodu:" textFill="#a1a1a1">
-                      <font><Font size="18.0" /></font>
-                    </Label>
-                    <TextField fx:id="modelField" promptText="np. Mustang" style="-fx-font-size: 16;" text="Volvo V70" GridPane.columnIndex="1" />
-
-                    <Label text="Nr Rejestracyjny:" textFill="#a1a1a1" GridPane.rowIndex="1">
-                      <font><Font size="18.0" /></font>
-                    </Label>
-                    <TextField fx:id="nrRejestField" promptText="np. KR 12345" style="-fx-font-size: 16;" text="WOT 192f1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                    <Label text="Nazwa Silnika:" textFill="#a1a1a1" GridPane.rowIndex="2">
-                      <font><Font size="18.0" /></font>
-                    </Label>
-                    <TextField fx:id="silnikNazwaField" promptText="np. V8 Turbo" style="-fx-font-size: 16;" text="D5 diesel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                    <Label text="Max Obroty (RPM):" textFill="#a1a1a1" GridPane.rowIndex="3">
-                      <font><Font size="18.0" /></font>
-                    </Label>
-                    <TextField fx:id="maxObrotyField" promptText="np. 7000" style="-fx-font-size: 16;" text="8000" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-
-                    <Label text="Ilość Biegów:" textFill="#a1a1a1" GridPane.rowIndex="4">
-                      <font><Font size="18.0" /></font>
-                    </Label>
-                    <TextField fx:id="iloscBiegowField" promptText="np. 6" style="-fx-font-size: 16;" text="6" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  </children>
-                </GridPane>
-
-                <Label fx:id="bladLabel" text="" textFill="#ff5252">
-                  <font><Font name="System Bold" size="14.0"/></font>
-                </Label>
-
-                <Button onAction="#onZbudujAutoClick" prefHeight="60.0" prefWidth="300.0" style="-fx-background-color: #03a9f4; -fx-cursor: hand;" text="ZBUDUJ SAMOCHOD" textFill="WHITE">
-                  <font>
-                    <Font name="System Bold" size="20.0" />
-                  </font>
-                </Button>
-
-              </children>
-            </VBox>
-          </content>
-        </Tab>
-
-        <Tab text="Kokpit Kierowcy" closable="false" fx:id="kokpitTab" disable="true">
+        <Tab text="Kokpit Kierowcy" closable="false">
           <content>
             <GridPane hgap="20.0" vgap="20.0">
               <columnConstraints>
@@ -120,29 +73,31 @@
 
                 <VBox alignment="TOP_CENTER" spacing="20.0" style="-fx-background-color: #3c3f41; -fx-background-radius: 10;">
                   <children>
-                    <Label text="SILNIK" textFill="#a1a1a1">
-                      <font><Font name="System Bold" size="18.0" /></font>
-                    </Label>
+                    <Label text="SILNIK" textFill="#a1a1a1"><font><Font name="System Bold" size="18.0" /></font></Label>
+
                     <Button fx:id="uruchomButton" onAction="#onUruchomClick" maxWidth="1.7976931348623157E308" prefHeight="50.0" style="-fx-background-color: #4caf50;" text="URUCHOM SILNIK" textFill="WHITE">
                       <font><Font name="System Bold" size="14.0" /></font>
                     </Button>
+
                     <Separator prefWidth="200.0" />
+
                     <Label text="Obroty (RPM)" textFill="WHITE" />
                     <ProgressBar fx:id="obrotyBar" maxWidth="1.7976931348623157E308" progress="0.0" style="-fx-accent: #ff9800;" />
-                    <Label fx:id="obrotyLabel" text="0 RPM" textFill="#ff9800">
-                      <font><Font name="Monospaced Bold" size="24.0" /></font>
-                    </Label>
+                    <Label fx:id="obrotyLabel" text="0 RPM" textFill="#ff9800"><font><Font name="Monospaced Bold" size="24.0" /></font></Label>
+
                     <HBox alignment="CENTER" spacing="10.0">
                       <children>
-                        <Button onAction="#onZmniejszObroty" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" style="-fx-background-color: #555;" text="-" textFill="WHITE" />
+                        <Button onAction="#onZmniejszObroty" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" style="-fx-background-color: #555;" text="-" textFill="WHITE">
+                          <font><Font size="14.0" /></font>
+                        </Button>
                         <Label text="Gaz" textFill="WHITE" />
-                        <Button onAction="#onZwiekszObroty" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" style="-fx-background-color: #555;" text="+" textFill="WHITE" />
+                        <Button onAction="#onZwiekszObroty" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" style="-fx-background-color: #555;" text="+" textFill="WHITE">
+                          <font><Font size="14.0" /></font>
+                        </Button>
                       </children>
                     </HBox>
                   </children>
-                  <padding>
-                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                  </padding>
+                  <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                 </VBox>
 
                 <VBox alignment="TOP_CENTER" spacing="10.0" style="-fx-background-color: #3c3f41; -fx-background-radius: 10;" GridPane.columnIndex="1">
@@ -150,9 +105,7 @@
                     <HBox alignment="CENTER" spacing="20.0">
                       <children>
                         <Label text="PRĘDKOŚĆ:" textFill="#a1a1a1" />
-                        <Label fx:id="predkoscLabel" text="0 km/h" textFill="#03a9f4">
-                          <font><Font name="System Bold" size="24.0" /></font>
-                        </Label>
+                        <Label fx:id="predkoscLabel" text="0 km/h" textFill="#03a9f4"><font><Font name="System Bold" size="24.0" /></font></Label>
                       </children>
                     </HBox>
                     <Separator prefWidth="200.0" />
@@ -160,10 +113,9 @@
                     <Pane fx:id="mapaPane" onMouseClicked="#ustawCelNaMapie" style="-fx-background-color: #1e1e1e; -fx-border-color: #03a9f4; -fx-border-width: 2; -fx-cursor: crosshair;" VBox.vgrow="ALWAYS">
                       <children>
                         <ImageView fx:id="znacznikSamochodu" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                          <Image url="@opelG.png" />
-                        </image>
-                      </ImageView>
+                          <image><Image url="@opelG.png" /></image>
+                        </ImageView>
+
                         <Circle fx:id="znacznikCelu" fill="#ff5722" layoutX="0" layoutY="0" radius="8.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
                       </children>
                     </Pane>
@@ -175,22 +127,18 @@
                       </children>
                     </HBox>
                   </children>
-                  <padding>
-                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                  </padding>
+                  <padding><Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /></padding>
                 </VBox>
 
                 <VBox alignment="TOP_CENTER" spacing="20.0" style="-fx-background-color: #3c3f41; -fx-background-radius: 10;" GridPane.columnIndex="2">
                   <children>
-                    <Label text="SKRZYNIA BIEGÓW" textFill="#a1a1a1">
-                      <font><Font name="System Bold" size="18.0" /></font>
-                    </Label>
+                    <Label text="SKRZYNIA" textFill="#a1a1a1"><font><Font name="System Bold" size="18.0" /></font></Label>
+
                     <VBox alignment="CENTER" VBox.vgrow="SOMETIMES">
-                      <Label fx:id="biegLabel" text="1" textFill="WHITE">
-                        <font><Font name="System Bold" size="96.0" /></font>
-                      </Label>
+                      <Label fx:id="biegLabel" text="N" textFill="WHITE"><font><Font name="System Bold" size="96.0" /></font></Label>
                       <Label text="BIEG" textFill="#a1a1a1" />
                     </VBox>
+
                     <HBox alignment="CENTER" spacing="10.0">
                       <children>
                         <Button onAction="#onRedukcjaBiegu" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" prefHeight="50.0" style="-fx-background-color: #555;" text="-" textFill="WHITE">
@@ -201,14 +149,14 @@
                         </Button>
                       </children>
                     </HBox>
+
                     <Separator prefWidth="200.0" />
+
                     <ToggleButton fx:id="sprzegloButton" onAction="#onSprzegloClick" maxWidth="1.7976931348623157E308" prefHeight="50.0" style="-fx-base: #e91e63;" text="SPRZĘGŁO" textFill="WHITE">
                       <font><Font name="System Bold" size="14.0" /></font>
                     </ToggleButton>
                   </children>
-                  <padding>
-                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                  </padding>
+                  <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                 </VBox>
               </children>
             </GridPane>

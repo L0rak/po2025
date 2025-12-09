@@ -1,6 +1,9 @@
 package org.example.symulator;
 
-public class Samochod {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Samochod extends Thread {
 
     private boolean stanWlaczenia;
 
@@ -17,6 +20,10 @@ public class Samochod {
 
     private Pozycja aktualnaPozycja;
 
+    private List<Listener> listeners = new ArrayList<>();
+
+    private boolean running = true;
+
     public Samochod(String nrRejest, String model, int predkoscMax, Silnik silnik, SkrzyniaBiegow skrzynia) {
         this.nrRejest = nrRejest;
         this.model = model;
@@ -25,7 +32,70 @@ public class Samochod {
         this.skrzynia = skrzynia;
 
         this.aktualnaPozycja = new Pozycja();
+        this.aktualnaPozycja.aktualizujPozycje(200, 200);
+
         this.stanWlaczenia = false;
+
+        setDaemon(true); //wylaczy aplikacje jak zamkniemy okno
+        start();
+    }
+
+    @Override
+    public void run() {
+        double deltat = 0.1;
+        while (running) {
+            try {
+                Thread.sleep(100);
+
+                if (stanWlaczenia && celPodrozy != null) {
+                    obliczRuch(deltat);
+                    notifyListeners();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                running = false;
+            }
+
+        }
+    }
+
+    private void obliczRuch(double deltat) {
+        double dx = celPodrozy.getX() - aktualnaPozycja.getX();
+        double dy = celPodrozy.getY() - aktualnaPozycja.getY();
+        double odleglosc = Math.sqrt(dx * dx + dy * dy);
+
+        if (odleglosc > 5.0) {
+            double aktualnaPredkosc;
+            if (skrzynia.getSprzeglo().czyWcisniete()) {
+                aktualnaPredkosc = 0;
+            } else {
+                aktualnaPredkosc = silnik.getObroty() * skrzynia.getAktualnePrzelozenie() * 0.01;
+            }
+
+            double ruchX = aktualnaPredkosc * deltat * (dx / odleglosc) * 50.0; // *50.0 to skala mapy
+            double ruchY = aktualnaPredkosc * deltat * (dy / odleglosc) * 50.0;
+
+            aktualnaPozycja.aktualizujPozycje(ruchX, ruchY);
+        } else {
+            celPodrozy = null; //bo dojechano do celu
+        }
+    }
+
+
+    public void addListener(Listener listener) {
+        listeners.add(listener);
+    }
+    public void removeListener(Listener listener) {
+        listeners.remove(listener);
+    }
+    private void notifyListeners() {
+        for (Listener listener : listeners) {
+            listener.update();
+        }
+    }
+
+    public void jedzDo(Pozycja cel) {
+        this.celPodrozy = cel;
     }
 
     public void wlacz() {
@@ -38,8 +108,12 @@ public class Samochod {
 
     public void getWaga() {}
 
-    public double getAktPredkosc() {
-        return aktualnaPredkosc;
+    public String getModel() {
+        return model;
+    }
+
+    public String getNrRejest() {
+        return nrRejest;
     }
 
     public Pozycja getAktPozycja() {
@@ -60,56 +134,14 @@ public class Samochod {
 
     private Pozycja celPodrozy;
 
-    private double aktualnaPredkosc;
-
-    public void jedzDo(Pozycja cel) {
-        this.celPodrozy = cel;
-        System.out.println("Cel ustawiony: " + cel.getPozycje());
+    public double getAktPredkosc() {
+        if (skrzynia.getSprzeglo().czyWcisniete()) return 0;
+        return silnik.getObroty() * skrzynia.getAktualnePrzelozenie() * 0.01;
     }
 
-    public void aktualizujStan(double deltaTime) {
-        if (!stanWlaczenia) {
-            aktualnaPredkosc = 0;
-            return;
-        }
-
-        if (skrzynia.getSprzeglo().czyWcisniete()) {
-            aktualnaPredkosc *= 0.99;
-        } else {
-            double mocNapedu = silnik.getObroty() * skrzynia.getAktualnePrzelozenie() * 0.01;
-            aktualnaPredkosc = mocNapedu;
-        }
-
-        if (celPodrozy != null && aktualnaPredkosc > 0.1) {
-            double obecneX = aktualnaPozycja.getX();
-            double obecneY = aktualnaPozycja.getY();
-
-            double celX = celPodrozy.getX();
-            double celY = celPodrozy.getY();
-
-            double dx = celX - obecneX;
-            double dy = celY - obecneY;
-            double dystans = Math.sqrt(dx * dx + dy * dy);
-
-            if (dystans > 5.0) {
-
-                double kierunekX = dx / dystans;
-                double kierunekY = dy / dystans;
-
-
-                double ruch = aktualnaPredkosc * deltaTime * 50.0;
-
-                aktualnaPozycja.aktualizujPozycje(kierunekX * ruch, kierunekY * ruch);
-            } else {
-                // Dojechaliśmy
-                aktualnaPredkosc = 0;
-            }
-        }
+    @Override
+    public String toString() {
+        return model + " (" + nrRejest + ")";
     }
-
-
-
-
-
 }
 
